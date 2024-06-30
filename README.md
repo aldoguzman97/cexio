@@ -25,7 +25,7 @@ pip install requests urllib3
 
 ### Initialization
 
-First, import the `Api` class and initialize it with your CEX.IO username, API key, and API secret.
+First, import the `Api` class and initialize it with your CEX.IO username, API key, and API secret. You can obtain your API key and secret from your [CEX.IO profile](https://cex.io/trade/profile#/api).
 
 ```python
 from your_module_name import Api
