@@ -63,12 +63,28 @@ def create_session_with_retries(retries=3, backoff_factor=0.3):
     return session
 
 class Api:
-    def __init__(self, username, api_key, api_secret):
+    def __init__(self, username, api_key, api_secret, logging_enabled=False):
         self.username = username
         self.api_key = api_key
         self.api_secret = api_secret
+        self.logging_enabled = logging_enabled
+        self.logger = self.configure_logging()
         self.validate_api_credentials(api_key, api_secret)
         self.session = create_session_with_retries()
+
+    def configure_logging(self):
+        logger = logging.getLogger(__name__)
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
+        if self.logging_enabled:
+            logger.setLevel(logging.INFO)
+        else:
+            logger.setLevel(logging.CRITICAL)  # Only log critical issues
+
+        return logger
 
     @staticmethod
     def validate_api_credentials(api_key, api_secret):
@@ -79,6 +95,7 @@ class Api:
         if len(api_key) < 20 or len(api_secret) < 20:
             raise InvalidCredentialsError("API key or secret length is too short. Check if they are correct.")
 
+    # Rest of the class code...
     def _create_signature(self, nonce):
         """Create a signature for the private API request."""
         message = nonce + self.username + self.api_key
@@ -100,15 +117,14 @@ class Api:
         params = params or {}
         url = f"{BASE_URL % command}{market}"
         headers = {'User-agent': f'bot-cex.io-{self.username}', 'Content-Type': 'application/json'}
-
         if private:
             nonce = str(int(time.time() * 1000))
             signature = self._create_signature(nonce)
             params.update({'key': self.api_key, 'signature': signature, 'nonce': nonce})
             self._validate_params(['nonce', 'key', 'signature'], params)
-            logging.info(f"Making private API call to {command} with params: {[k for k in params.keys()]}")
+            self.logger.info(f"Making private API call to {command} with params: {[k for k in params.keys()]}")
         else:
-            logging.info(f"Making public API call to {command} with params: {params}")
+            self.logger.info(f"Making public API call to {command} with params: {params}")
 
         try:
             if method == 'GET':
@@ -122,16 +138,16 @@ class Api:
                 raise ApiResponseError(response.status_code, "Invalid JSON response")
             if 'error' in response_data:
                 raise ApiResponseError.from_response(response)
-            logging.info(f"Received response for {command}: {response_data}")
+            self.logger.info(f"Received response for {command}: {response_data}")
             return response_data
         except requests.exceptions.Timeout:
-            logging.error(f"Request to {command} timed out.")
+            self.logger.error(f"Request to {command} timed out.")
             raise NetworkError(f"Request to {command} timed out.")
         except requests.exceptions.HTTPError as http_err:
-            logging.error(f"HTTP error occurred: {http_err.response.text}")
+            self.logger.error(f"HTTP error occurred: {http_err.response.text}")
             raise ApiResponseError.from_response(http_err.response)
         except requests.exceptions.RequestException as req_err:
-            logging.error(f"An error occurred: {req_err}")
+            self.logger.error(f"An error occurred: {req_err}")
             raise NetworkError(f"An error occurred: {req_err}")
 
     def api_call(self, command, params=None, market='', private=False, method='GET'):
