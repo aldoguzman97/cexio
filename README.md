@@ -9,9 +9,10 @@ This Python module allows users to interact with the CEX.IO API using RESTful `G
 3. [API Methods](#api-methods)
 4. [Debugging](#debugging)
 5. [Error Handling](#error-handling)
-6. [Examples](#examples)
-7. [Contributing](#contributing)
-8. [License](#license)
+6. [Logging](#logging)
+7. [Examples](#examples)
+8. [Contributing](#contributing)
+9. [License](#license)
 
 ## Installation
 
@@ -101,6 +102,22 @@ except ApiError as e:
     logging.error(f"An API error occurred: {e}")
 ```
 
+## Logging
+
+The module provides an option to enable or disable logging dynamically when initializing the `Api` class instance. To enable logging, pass `logging_enabled=True` during initialization.
+
+### Example with Logging Enabled
+
+```python
+api = Api('your_username', 'your_api_key', 'your_api_secret', logging_enabled=True)
+```
+
+### Example with Logging Disabled (default)
+
+```python
+api = Api('your_username', 'your_api_key', 'your_api_secret', logging_enabled=False)
+```
+
 ## Examples
 
 ### Fetching Last Price
@@ -131,4 +148,3 @@ Contributions are welcome! Please fork the repository and submit a pull request.
 ## License
 
 This project is licensed under the MIT License.
-"""
