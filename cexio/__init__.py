@@ -100,7 +100,7 @@ class Api:
         params = params or {}
         url = f"{BASE_URL % command}{market}"
         headers = {'User-agent': f'bot-cex.io-{self.username}', 'Content-Type': 'application/json'}
-        
+
         if private:
             nonce = str(int(time.time() * 1000))
             signature = self._create_signature(nonce)
@@ -115,7 +115,6 @@ class Api:
                 response = self.session.get(url, headers=headers, params=params, timeout=30)
             else:
                 response = self.session.post(url, json=params, headers=headers, timeout=30)
-
             response.raise_for_status()
             try:
                 response_data = response.json()
@@ -335,6 +334,44 @@ class Api:
     def get_currency_profile(self):
         """Get currency profile."""
         return self.private_api_call('currency_profile')
+
+    # Open long position
+    # def open_long_position(self, amount, symbol, estimated_open_price, stop_loss_price, leverage=2, market='BTC/USD'):
+    #     """Open a long position."""
+    #     params = {
+    #         'amount': amount,
+    #         'symbol': symbol,
+    #         'leverage': leverage,
+    #         'ptype': 'long',
+    #         'anySlippage': 'true',
+    #         'eoprice': estimated_open_price,
+    #         'stopLossPrice': stop_loss_price
+    #     }
+    #     return self.private_api_call(f'open_position/{market}', params)
+
+    # Open short position
+    # def open_short_position(self, amount, symbol, estimated_open_price, stop_loss_price, leverage=2, market='BTC/USD'):
+    #     """Open a short position."""
+    #     params = {
+    #         'amount': amount,
+    #         'symbol': symbol,
+    #         'leverage': leverage,
+    #         'ptype': 'short',
+    #         'anySlippage': 'true',
+    #         'eoprice': estimated_open_price,
+    #         'stopLossPrice': stop_loss_price
+    #     }
+    #     return self.private_api_call(f'open_position/{market}', params)
+
+    # Open positions
+    # def get_open_positions(self, market='BTC/USD'):
+    #     """Get open positions."""
+    #     return self.private_api_call(f'open_positions/{market}')
+
+    # Close position
+    # def close_position(self, position_id, market='BTC/USD'):
+    #     """Close a position."""
+    #     return self.private_api_call(f'close_position/{market}', {'id': position_id})
 
     def __enter__(self):
         return self
