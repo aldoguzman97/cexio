@@ -95,7 +95,7 @@ class Api:
         if missing_params:
             raise ValueError(f"Missing required parameters: {', '.join(missing_params)}")
 
-    def __api_request(self, command, params=None, market='', private=False, method='GET'):
+    def _api_request(self, command, params=None, market='', private=False, method='GET'):
         """Send an API request to the specified command."""
         params = params or {}
         url = f"{BASE_URL % command}{market}"
@@ -139,7 +139,7 @@ class Api:
         """General API call method."""
         if not private:
             method = 'GET'
-        return self.__api_request(command, params, market, private, method)
+        return self._api_request(command, params, market, private, method)
 
     def public_api_call(self, command, market='BTC/USD', params=None):
         """Public API call method."""
